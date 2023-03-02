@@ -2,12 +2,12 @@
 #include <iostream>
 #include <cmath>
 #include <bitset>
-#include "ot.h"
+#include "bf.h"
 
 using namespace std;
 
 //конструктор от строки
-BF:: BF(std::string s)
+BF:: BF(string s)
 {
 	uint32_t str_len = s.length();
 	if (f != nullptr)
@@ -17,7 +17,7 @@ BF:: BF(std::string s)
 	}
 	if (str_len & (str_len - 1))
 	{
-		std::cout << "The length can only be a power of 2\n";
+		cout << "Length should be equal 2^n\n";
 		exit(1);
 	}
 	n = str_len;
@@ -36,40 +36,30 @@ BF:: BF(std::string s)
 		{
 			j = 0;
 		}
-		f[(i >> 5)] |= (1 << j);
+        if (s[i] == '1')
+        {
+		    f[(i >> 5)] |= (1 << j);
+        }
 
-		if (s[i] == '0')
-		{
-			f[(i >> 5)] ^= (1 << j);
-		}
+		// if (s[i] == '0')
+		// {
+		// 	f[(i >> 5)] ^= (1 << j);
+		// }
 		j++;
 	}
-
-	// for (size_t i = 0; i < len; i++)
-	// {
-	// 	std::bitset<32> st(f[i]);
-	// 	std::string str = st.to_string();
-	// 	std::cout << str << " " << i << std::endl;
-	// }
 }
 
-/*
-* конструктор
-* при type == 2 — случайный набор
-* при type == 1 — константа 1
-* при type == 0 — константа 0
-*/
-BF:: BF(uint8_t type, uint32_t _len = sizeof(uint32_t) * 8)
+BF:: BF(uint8_t type, uint32_t _n = sizeof(uint32_t) * 8)
 {
-	if (_len & (_len - 1))
+	if (_n & (_n - 1))
 	{
-		std::cout << "The length can only be a power of 2\n";
+		cout << "Length should be equal 2^n\n";
 		exit(1);
 	}
 
-	n = _len;
+	n = _n;
 	len = ((1 << int(log2(n))) + 31) >> 5;
-	f = new uint32_t[len];
+    f = new uint32_t[len];
 
 	if (type == 2)
 	{
@@ -77,22 +67,61 @@ BF:: BF(uint8_t type, uint32_t _len = sizeof(uint32_t) * 8)
 		{
 			f[i] = 0;
 		}
-		for (uint32_t i = 0; i < n; i++)
-		{
-			thread_local static std::mt19937 mersenne = mt();
-			if (mersenne() % 2)
-			{
-				f[i >> 5] |= (1 << (i % 32));
-			}
-		}
+        if (n <= 16)
+        {
+            f[0] |= (uint16_t(rand() - rand())) >> (16 - n);
+        }
+        else
+        {
+            for (uint32_t i = 0; i < len; i++)
+            {
+                f[i] = (rand() - rand());
+				// f[i] = uint16_t(rand() - rand());
+				// f[i] = f[i] << 16;
+				// f[i] |= uint16_t(rand() - rand());
+
+				// thread_local static std::mt19937 mersenne = mt();
+                // if (mersenne() % 2)
+                // {
+                // 	f[i >> 5] |= (1 << (i % 32));
+                // }
+            }
+        }
+        
+        // for (int i = 0; i < len; i++)
+		// {
+		// 	std::bitset<32> st(f[i]);
+		// 	std::string str = st.to_string();
+		// 	cout << str << endl;
+		// }
 	}
 
 	if (type == 1)
 	{
-		for (size_t i = 0; i < len; i++)
+        for (size_t i = 0; i < len; i++)
 		{
-			f[i] = UINT32_MAX;
+			f[i] = 0;
 		}
+
+        if (n < 32)
+        {
+			f[0] = UINT32_MAX;
+			f[0] = f[0] >> (32 - n);
+        }
+        else
+        {
+            for (size_t i = 0; i < len; i++)
+            {
+                f[i] = UINT32_MAX;
+            }
+        }
+        
+        // for (int i = 0; i < len; i++)
+		// {
+		// 	std::bitset<32> st(f[i]);
+		// 	std::string str = st.to_string();
+		// 	cout << str << endl;
+		// }
 	}
 
 	if (type == 0)
@@ -101,6 +130,13 @@ BF:: BF(uint8_t type, uint32_t _len = sizeof(uint32_t) * 8)
 		{
 			f[i] = 0;
 		}
+		
+        // for (int i = 0; i < len; i++)
+		// {
+		// 	std::bitset<32> st(f[i]);
+		// 	std::string str = st.to_string();
+		// 	cout << str << endl;
+		// }
 	}
 }
 
@@ -156,7 +192,7 @@ BF& BF:: operator =(const BF& other)
 
 std::ostream& operator <<(std::ostream& out, BF& other)
 {
-	if (other.n <= 32)
+	if (other.n <= 31)
 	{
 		std::bitset<32> st(other.f[0]);
 		std::string str = st.to_string();
