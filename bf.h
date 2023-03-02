@@ -18,13 +18,13 @@ static std::mt19937& mt()
 
 class BF
 {
-	uint32_t  n = 0;          //используемая память
-	uint32_t  len = 0;      //выделеная память
-	uint32_t* f = nullptr;	//массив коэфициентов
+	uint32_t  n = 0;         //количество битов 
+	uint32_t  len = 0; 
+	uint32_t* f = nullptr;	
 public:
     BF();
     BF(std::string s);
-    BF(uint8_t type, uint32_t _len);
+    BF(uint8_t type, uint32_t _n);
     ~BF();
     BF(const BF& other);
     BF& operator =(const BF& other);
@@ -32,5 +32,4 @@ public:
     uint32_t weight();
     bool operator ==(const BF &other);
     bool operator !=(const BF &other);
-
 };
