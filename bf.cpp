@@ -254,3 +254,96 @@ bool BF::operator !=(const BF &other)
 {
 	return !(*this == other);
 }
+
+BF BF:: Mebius()
+{
+	BF g;
+	g = *this;
+	
+	if (n == 2)
+	{
+		g.f[0] = g.f[0] ^ ((g.f[0] << 1) & 0x55555555);
+		return g;
+	}
+
+	if (n == 4)
+	{
+		g.f[0] = g.f[0] ^ ((g.f[0] << 1) & 0x55555555);
+		g.f[0] = g.f[0] ^ ((g.f[0] << 2) & 0x33333333);
+		return g;
+	}
+	if (n == 8)
+	{
+		g.f[0] = g.f[0] ^ ((g.f[0] << 1) & 0xAAAAAAAA);
+		g.f[0] = g.f[0] ^ ((g.f[0] << 2) & 0xCCCCCCCC);
+		g.f[0] = g.f[0] ^ ((g.f[0] << 4) & 0xF0F0F0F0);
+		// for (int i = 0; i < len; i++)
+		// {
+		// 	std::bitset<32> st(g.f[i]);
+		// 	std::string str = st.to_string();
+		// 	cout << str << endl;
+		// }
+		return g;
+	}
+	if (n == 16)
+	{
+		g.f[0] = g.f[0] ^ ((g.f[0] << 1) & 0xAAAAAAAA);
+		g.f[0] = g.f[0] ^ ((g.f[0] << 2) & 0xCCCCCCCC);
+		g.f[0] = g.f[0] ^ ((g.f[0] << 4) & 0xF0F0F0F0);
+		g.f[0] = g.f[0] ^ ((g.f[0] << 8) & 0xFF00FF00);
+		return g;
+	}
+	if (n >= 32)
+	{
+		for (size_t i = 0; i < len; i++)
+		{
+			g.f[i] ^= ((g.f[i] << 1) & 0xAAAAAAAA);
+			g.f[i] ^= ((g.f[i] << 2) & 0xCCCCCCCC);
+			g.f[i] ^= ((g.f[i] << 4) & 0xF0F0F0F0);
+			g.f[i] ^= ((g.f[i] << 8) & 0xFF00FF00);
+			g.f[i] ^= ((g.f[i] << 16) & 0xFFFF0000);
+		}
+
+		for (size_t i = 0; i < len; i++)
+		{
+			for (size_t j = i + 1; j < len; j++)
+			{
+				g.f[j] ^= g.f[i];
+			}
+		}
+		return g;
+	}
+
+	return g;
+}
+
+// string BF:: ANF()
+// {
+// 	BF g;
+// 	// g = *this;
+// 	BF f;
+// 	string str;
+// 	int j = 0;
+// 	for (size_t i = 0; i < n; i++)
+// 	{
+// 		if (j == 32)
+// 		{
+// 			j = 0;
+// 		}
+// 		g.f[j] = this->f[j] & (1<<i);
+// 		for (int i = 0; i < len; i++)
+// 		{
+// 			std::bitset<32> st(g.f[j]);
+// 			std::string str = st.to_string();
+// 			cout << str << endl;
+// 		}
+		
+// 		if (g.f[j] == true)
+// 		{
+// 			str[i] = char(65 + i);
+// 			cout << str << endl;
+// 		}
+// 		j++;
+// 	}
+// 	return str;
+// }
