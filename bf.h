@@ -32,4 +32,6 @@ public:
     uint32_t weight();
     bool operator ==(const BF &other);
     bool operator !=(const BF &other);
+    BF Mebius();
+    string ANF();
 };
