@@ -49,7 +49,7 @@ BF:: BF(string s)
 	}
 }
 
-BF:: BF(uint8_t type, uint32_t _n = sizeof(uint32_t) * 8)
+BF:: BF(uint8_t type, uint32_t _n = sizeof(uint32_t))
 {
 	if (_n & (_n - 1))
 	{
@@ -58,7 +58,7 @@ BF:: BF(uint8_t type, uint32_t _n = sizeof(uint32_t) * 8)
 	}
 
 	n = _n;
-	len = ((1 << int(log2(n))) + 31) >> 5;
+	len = (((uint64_t)1 << (uint64_t)(log2(n))) + (uint64_t)31) >> 5;
     f = new uint32_t[len];
 
 	if (type == 2)
@@ -98,10 +98,10 @@ BF:: BF(uint8_t type, uint32_t _n = sizeof(uint32_t) * 8)
 
 	if (type == 1)
 	{
-        for (size_t i = 0; i < len; i++)
-		{
-			f[i] = 0;
-		}
+        // for (size_t i = 0; i < len; i++)
+		// {
+		// 	f[i] = 0;
+		// }
 
         if (n < 32)
         {
@@ -304,13 +304,20 @@ BF BF:: Mebius()
 			g.f[i] ^= ((g.f[i] << 16) & 0xFFFF0000);
 		}
 
-		for (size_t i = 0; i < len; i++)
-		{
-			for (size_t j = i + 1; j < len; j++)
-			{
-				g.f[j] ^= g.f[i];
-			}
-		}
+        uint32_t per = log2(n);
+        // if (per > 5)
+        // {
+            for (size_t i = 0; i < per; i++)
+            {
+                for (size_t j = 0; j < len; j++)
+                {
+                    for (size_t k = j * (1<<(i + 1)), l = k + (1<<i), p = 0; p < (1<<i); p++, k++, l++)
+                    {
+                        g.f[k] ^= g.f[l];
+                    }
+                }
+            }
+        // }
 		return g;
 	}
 
