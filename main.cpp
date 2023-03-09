@@ -8,7 +8,7 @@ using namespace std;
 int main()
 {
     srand((unsigned int)(time(NULL)));
-    // for (size_t i = 2; i < 31; i++)
+    // for (size_t i = 2; i < 32; i++)
     // {
     //    auto begin = std::chrono::high_resolution_clock::now();
     //    BF x(2, (1<<i));
@@ -32,20 +32,23 @@ int main()
     //    auto t_mebius = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin);
     //    z = y.Mebius();
        
-    //    std::cout << "Arg =" << i << "\tTime_gen =" << t_gen.count() << "\tTime_mebius =" << t_mebius.count() << "\tEqual after 2 mebius? =" << ((x == z) ? "true" : "No");
+    //    std::cout << "Arg =" << i << "\tTime_generation =" << t_gen.count() << "\tTime_mebius =" << t_mebius.count() << "\tEqual after 2 mebius? =" << ((x == z) ? "true" : "No");
     //    std::cout << std::endl;
     // }
 
     // // string str;
     // // cin >> str;
-    BF x(2, 1<<30); //0001000100011110000100010001111000010001000111101110111011100001
+    // BF x("0001000100011110000100010001111000010001000111101110111011100001"); //0001000100011110000100010001111000010001000111101110111011100001
     // std::cout << x << std::endl;
-    uint64_t w = x.weight();
-    cout << w << " - w" << endl;
+    // uint64_t w = x.weight();
+    // cout << w << " - w" << endl;
     // BF g = x.Mebius();
     // cout << g << endl;
     // string str = g.ANF();
     // cout << str << endl;
+
+    int kek = log2(64); 
+    cout << kek << endl;
 
     return 0;
 }
