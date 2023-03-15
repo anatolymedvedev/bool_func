@@ -79,12 +79,6 @@ BF:: BF(uint8_t type, uint32_t _n = sizeof(uint32_t))
 				// f[i] = uint16_t(rand() - rand());
 				// f[i] = f[i] << 16;
 				// f[i] |= uint16_t(rand() - rand());
-
-				// thread_local static std::mt19937 mersenne = mt();
-                // if (mersenne() % 2)
-                // {
-                // 	f[i >> 5] |= (1 << (i % 32));
-                // }
             }
         }
         
@@ -98,11 +92,6 @@ BF:: BF(uint8_t type, uint32_t _n = sizeof(uint32_t))
 
 	if (type == 1)
 	{
-        // for (size_t i = 0; i < len; i++)
-		// {
-		// 	f[i] = 0;
-		// }
-
         if (n < 32)
         {
 			f[0] = UINT32_MAX;
@@ -198,7 +187,6 @@ std::ostream& operator <<(std::ostream& out, BF& other)
 		std::string str = st.to_string();
 		str.erase(0, 32 - other.n);
 		reverse(str.begin(), str.end());
-		// cout << str << endl;
 		out << str;
 	}
 	else
@@ -208,7 +196,6 @@ std::ostream& operator <<(std::ostream& out, BF& other)
 			std::bitset<32> st(other.f[i]);
 			std::string str = st.to_string();
 			reverse(str.begin(), str.end());
-			// cout << str << endl;
 			out << str;
 		}
 	}
@@ -259,17 +246,17 @@ BF BF:: Mebius()
 {
 	BF g;
 	g = *this;
-	
+
 	if (n == 2)
 	{
-		g.f[0] = g.f[0] ^ ((g.f[0] << 1) & 0x55555555);
+		g.f[0] = g.f[0] ^ ((g.f[0] << 1) & 0xAAAAAAAA);
 		return g;
 	}
 
 	if (n == 4)
 	{
-		g.f[0] = g.f[0] ^ ((g.f[0] << 1) & 0x55555555);
-		g.f[0] = g.f[0] ^ ((g.f[0] << 2) & 0x33333333);
+		g.f[0] = g.f[0] ^ ((g.f[0] << 1) & 0xAAAAAAAA);
+		g.f[0] = g.f[0] ^ ((g.f[0] << 2) & 0xCCCCCCCC);
 		return g;
 	}
 	if (n == 8)
@@ -277,12 +264,6 @@ BF BF:: Mebius()
 		g.f[0] = g.f[0] ^ ((g.f[0] << 1) & 0xAAAAAAAA);
 		g.f[0] = g.f[0] ^ ((g.f[0] << 2) & 0xCCCCCCCC);
 		g.f[0] = g.f[0] ^ ((g.f[0] << 4) & 0xF0F0F0F0);
-		// for (int i = 0; i < len; i++)
-		// {
-		// 	std::bitset<32> st(g.f[i]);
-		// 	std::string str = st.to_string();
-		// 	cout << str << endl;
-		// }
 		return g;
 	}
 	if (n == 16)
@@ -304,53 +285,117 @@ BF BF:: Mebius()
 			g.f[i] ^= ((g.f[i] << 16) & 0xFFFF0000);
 		}
 
-        uint32_t per = log2(n);
-        // if (per > 5)
-        // {
-            for (size_t i = 0; i < per; i++)
-            {
-                for (size_t j = 0; j < len; j++)
-                {
-                    for (size_t k = j * (1<<(i + 1)), l = k + (1<<i), p = 0; p < (1<<i); p++, k++, l++)
-                    {
-                        g.f[k] ^= g.f[l];
-                    }
-                }
-            }
-        // }
+		uint32_t per = log2(n);
+		for (size_t i = 0; i < per - 5; i++)
+		{
+			uint32_t half = 1 << i;
+			for (size_t j = 0; j < len; j = j + 2 * half)
+			{
+				for (size_t k = j + half; k < (j + 2 * half); k++)
+				{
+					g.f[k] = g.f[k] ^ g.f[k - half];
+				}
+			}
+		}
+
 		return g;
 	}
-
+	
 	return g;
 }
 
-// string BF:: ANF()
-// {
-// 	BF g;
-// 	// g = *this;
-// 	BF f;
-// 	string str;
-// 	int j = 0;
-// 	for (size_t i = 0; i < n; i++)
-// 	{
-// 		if (j == 32)
-// 		{
-// 			j = 0;
-// 		}
-// 		g.f[j] = this->f[j] & (1<<i);
-// 		for (int i = 0; i < len; i++)
-// 		{
-// 			std::bitset<32> st(g.f[j]);
-// 			std::string str = st.to_string();
-// 			cout << str << endl;
-// 		}
-		
-// 		if (g.f[j] == true)
-// 		{
-// 			str[i] = char(65 + i);
-// 			cout << str << endl;
-// 		}
-// 		j++;
-// 	}
-// 	return str;
-// }
+bool bit_value(uint32_t num, uint32_t bit)
+{
+	return (uint32_t(1) << bit) & num;
+}
+
+void BF::print_monom(uint32_t monom)
+{
+	if (monom == 0)
+	{
+		cout << 1;
+		return;
+	}
+
+	uint32_t per = log2(n);
+	for (size_t i = 0; i < 32; i++)
+	{
+		if (bit_value(monom, i))
+		{
+			cout << "x" << per - i;
+		}	
+	}
+}
+
+void BF:: ANF()
+{
+	uint32_t cur = 0;
+	BF zero(0, 64);
+	BF copy;
+	copy = *this;
+	if (zero == copy)
+	{
+		cout << "0";
+		return;
+	}
+
+	int first_symbol = 1;
+	for (size_t i = 0; i < len; i++)
+	{
+		for (size_t j = 0; j < 32; j++)
+		{
+			cur = i << 5;
+			cur += j;
+			if (bit_value(f[i], j))
+			{
+				if (first_symbol == 1)
+				{
+					print_monom(cur);
+					first_symbol ++;
+					continue;
+				}
+				cout << "+";
+				print_monom(cur);
+			}
+		}
+	}
+}
+
+uint32_t weight_num(uint32_t num)
+{
+	uint32_t res = 0;
+	uint32_t tmp = num;
+	tmp = tmp - ((tmp >> 1) & 0x55555555L);
+	tmp = (tmp & 0x33333333L) + ((tmp >> 2) & 0x33333333L);
+	tmp = (tmp + (tmp >> 4)) & 0x0F0F0F0FL;
+	tmp = tmp + (tmp >> 8);
+	res += (uint8_t)(tmp + (tmp >> 16)) & 0x3F;
+
+	return res;
+}
+
+uint32_t BF:: degree_func()
+{
+	uint32_t max = 0;
+	uint32_t cur = 0;
+	uint32_t weight = 0;
+
+	for (size_t i = 0; i < len; i++)
+	{
+		for (size_t j = 0; j < 32; j++)
+		{
+			cur = i << 5;
+			cur += j;
+			if (bit_value(f[i], j))
+			{
+				weight = weight_num(cur);
+				if (weight > max)
+				{
+					max = weight;
+				}
+			}
+		}
+	}
+
+	return max;
+}
