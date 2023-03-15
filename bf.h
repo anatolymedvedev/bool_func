@@ -33,5 +33,8 @@ public:
     bool operator ==(const BF &other);
     bool operator !=(const BF &other);
     BF Mebius();
-    string ANF();
+    // bool bit_value(uint32_t , uint32_t );
+    void print_monom(uint32_t );
+    void ANF();
+    uint32_t degree_func();
 };
