@@ -37,4 +37,5 @@ public:
     void print_monom(uint32_t );
     void ANF();
     uint32_t degree_func();
+    vector<int32_t> Walsh_Hadamard();
 };
