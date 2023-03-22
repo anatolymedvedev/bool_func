@@ -39,16 +39,24 @@ int main()
 
     // // string str;
     // // cin >> str;
-    BF x("0001000100011110000100010001111000010001000111101110111011100001"); //0000000100000001000000010000000100000001000000010000000111111110
+    BF x("0110"); //0000000100000001000000010000000100000001000000010000000111111110
     std::cout << x << std::endl;
     // uint64_t w = x.weight();
     // cout << w << " - w" << endl;
-    BF g = x.Mebius();
-    cout << g << endl;
-    g.ANF();
+    // BF g = x.Mebius();
+    // cout << g << endl;
+    // g.ANF();
+    // cout << endl;
+    // uint32_t degree = g.degree_func();
+    // cout << degree << endl;
+
+    vector<int32_t> f;
+    f = x.Walsh_Hadamard();
+    for (auto s : f)
+    {
+        cout << s << " ";
+    }
     cout << endl;
-    uint32_t degree = g.degree_func();
-    cout << degree << endl;
 
     return 0;
 }
