@@ -399,3 +399,65 @@ uint32_t BF:: degree_func()
 
 	return max;
 }
+
+vector<int32_t> BF:: Walsh_Hadamard()
+{
+	vector<int32_t> func(n);
+	cout << n << endl;
+	if (n < 32)
+	{
+		for (size_t i = 0; i < n; i++)
+		{
+			if (f[0] & (1<<i))
+			{
+				func[i] = -1;
+			}
+			else
+			{
+				func[i] = 1;	
+			}
+		}
+	}
+	else
+	{
+		for (size_t i = 0; i < len; i++)
+		{
+			for (size_t j = 0; j < 32; j++)
+			{
+				if (f[i] & (1<<j))
+				{
+					func[j + 32 * i] = -1;
+				}
+				else
+				{
+					func[j + 32 * i] = 1;
+				}
+			}
+		}
+	}
+	for (auto s : func)
+    {
+        cout << s << " ";
+    }
+    cout << endl;
+
+	uint32_t l_2 = log2(n);
+	cout << l_2 << endl;
+	for (uint32_t k = 0; k < l_2; k++)
+	{
+		for (uint32_t l = 0; l < (1 << (l_2 - 1 - k)); l++)
+		{
+			for (uint32_t i = l * (1 << (k + 1)), j = i + (1 << k), p = 0; p < (1 << k); p++, i++, j++)
+			{
+				func[i] = func[i] + func[j];
+				func[j] = func[i] - func[j] - func[j];
+			}
+			// for (uint32_t i = l * (1 << (k + 1)), j = i + (1 << k), p = 0; p < (1 << k); p++, i++, j++)
+			// {
+			// 	func[j] = func[i] - func[j] - func[j];
+			// }
+		}
+	}
+
+	return func;
+}
