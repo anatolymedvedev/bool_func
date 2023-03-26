@@ -37,6 +37,22 @@ int main()
     //    std::cout << std::endl;
     // }
 
+    // test_Walsh_Hadamard
+    // for (size_t i = 2; i < 32; i++)
+    // {
+    //    auto begin = std::chrono::steady_clock::now();
+    //    BF x(2, (1<<i));
+    //    auto end = std::chrono::steady_clock::now();
+    //    auto t_gen = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin);
+    //    vector<int32_t> f;
+    //    begin = std::chrono::steady_clock::now();
+    //    f = x.Walsh_Hadamard();
+    //    end = std::chrono::steady_clock::now();
+    //    auto t_Walsh_Hadamard = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin);
+    //    std::cout << "Arg =" << i << "\tTime_generation =" << t_gen.count() << "\tWalsh_Hadamard =" << t_Walsh_Hadamard.count();
+    //    std::cout << std::endl;
+    // }
+
     // // string str;
     // // cin >> str;
     BF x("0110"); //0000000100000001000000010000000100000001000000010000000111111110
