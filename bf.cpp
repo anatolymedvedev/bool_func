@@ -520,21 +520,47 @@ vector<int32_t> BF:: Walsh_Hadamard()
 	return func;
 }
 
-// uint32_t BF:: cor()
-// {
-//     uint32_t res = 0;
-//     vector<int32_t>func(n);
-//     BF copy;
-// 	copy = *this;
-//     uint32_t weight = 1;
-//     do
-//     {
-//         func = copy.Walsh_Hadamard();
-//         weight++;
-//         res++;
+uint32_t BF:: cor()
+{
+    uint32_t res = 0;
+    vector<int32_t>func = this->Walsh_Hadamard();
+	for (auto s : func)
+    {
+        cout << s << " ";
+    }
+    cout << endl;
+	uint32_t per = log2(func.size());
+    uint32_t a = 0, b = 0, copy_a = 0, c = 0;
+    for (size_t k = 1; k <= per; k++)
+    {
+		a = ((1 << k) - 1) << (per - k);
+		copy_a = a;
+		while (true)
+		{
+			if (func[a] != 0)
+			{
+				cout << res << endl;
+				return res;
+			}
 
-//     }while(func == 0)
+			b = (a + 1) & a;
+			c = (b - 1) ^ a;
+			c = weight_num(c) - 2;
+			a = (((((a + 1) ^ a) << 1) + 1) << c) ^ b;		
+			if (a < copy_a)
+			{
+				break;
+			}
+			copy_a = a;
+			cout << res << endl;
+
+		}
+		// cout << res << endl;
 
 
-//     return res;
-// }
+        res++;
+    }
+	cout << res << endl;
+
+    return res;
+}
