@@ -492,11 +492,11 @@ vector<int32_t> BF:: Walsh_Hadamard()
 			}
 		}
 	}
-	for (auto s : func)
-    {
-        cout << s << " ";
-    }
-    cout << endl;
+	// for (auto s : func)
+    // {
+    //     cout << s << " ";
+    // }
+    // cout << endl;
 
     uint32_t k = 0;
     uint32_t s = 0;
@@ -524,43 +524,92 @@ uint32_t BF:: cor()
 {
     uint32_t res = 0;
     vector<int32_t>func = this->Walsh_Hadamard();
-	for (auto s : func)
-    {
-        cout << s << " ";
-    }
-    cout << endl;
+	// for (auto s : func)
+    // {
+    //     cout << s << " ";
+    // }
+    // cout << endl;
 	uint32_t per = log2(func.size());
     uint32_t a = 0, b = 0, copy_a = 0, c = 0;
     for (size_t k = 1; k <= per; k++)
     {
 		a = ((1 << k) - 1) << (per - k);
+		// cout << "a = " << a << endl;
 		copy_a = a;
 		while (true)
 		{
+			// cout << "func[a] = " << func[a] << endl;
 			if (func[a] != 0)
 			{
-				cout << res << endl;
+				// cout << res << endl;
 				return res;
 			}
 
 			b = (a + 1) & a;
+			// cout << "in while: b = " << b << endl;
 			c = (b - 1) ^ a;
+			// cout << "in while: c = " << c << endl;
 			c = weight_num(c) - 2;
-			a = (((((a + 1) ^ a) << 1) + 1) << c) ^ b;		
-			if (a < copy_a)
+			// cout << "in while: c = " << c << endl;
+			a = (((((a + 1) ^ a) << 1) + 1) << c) ^ b;	
+			// cout << "in while: a = " << a << endl;
+			if (a > copy_a)
 			{
+				// cout << "break" << endl;
 				break;
 			}
 			copy_a = a;
-			cout << res << endl;
-
+			// cout << "in while: copy_a = " << copy_a << endl;
 		}
-		// cout << res << endl;
-
-
         res++;
+		// cout << "res = " << res << endl;
+		// cout << "k = " << k << endl;
     }
-	cout << res << endl;
 
     return res;
+}
+
+string BF:: nf_nap()
+{
+	std::vector<int32_t>func = this->Walsh_Hadamard();
+	for (auto s : func)
+    {
+        cout << s << " ";
+    }
+    cout << endl;
+	auto minmax = minmax_element(func.begin(), func.end());
+	uint32_t maximum = max(abs(*minmax.first), *minmax.second);
+	uint32_t nf = (n >> 1) - ((maximum) >> 1);
+	string res = "N_f = " + to_string(nf) + "\n";
+	uint32_t per = log2(n);
+	res += "NAP:\n";
+	for (size_t i = 0; i < func.size(); i++)
+	{
+		if (abs(func[i]) == maximum)
+		{
+			bitset<32> st2(i);
+			string str2 = st2.to_string();
+			str2.erase(0, 32 - per);
+			for (size_t j = 0; j < str2.length(); j++)
+			{
+				if (str2[j] == '1')
+				{
+					res += "X";
+					res += to_string((j + 1));
+					res += "+";
+				}
+			}
+			if (func[i] < 0)
+			{
+				res += "1\n";
+			}
+			else
+			{
+				res.erase(res.length() - 1, 1);
+				res += "\n";
+			}
+		}
+	}
+
+	return res;
 }
