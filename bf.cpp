@@ -339,6 +339,7 @@ void BF:: ANF()
 		return;
 	}
 
+	cout << "ANF: " << endl;
 	int first_symbol = 1;
 	for (size_t i = 0; i < len; i++)
 	{
@@ -399,64 +400,6 @@ uint32_t BF:: degree_func()
 
 	return max;
 }
-
-// vector<int32_t> BF:: Walsh_Hadamard()
-// {
-// 	vector<int32_t> func(n);
-// 	cout << n << endl;
-// 	if (n < 32)
-// 	{
-// 		for (size_t i = 0; i < n; i++)
-// 		{
-// 			if (f[0] & (1<<i))
-// 			{
-// 				func[i] = -1;
-// 			}
-// 			else
-// 			{
-// 				func[i] = 1;	
-// 			}
-// 		}
-// 	}
-// 	else
-// 	{
-// 		for (size_t i = 0; i < len; i++)
-// 		{
-// 			for (size_t j = 0; j < 32; j++)
-// 			{
-// 				if (f[i] & (1<<j))
-// 				{
-// 					func[j + 32 * i] = -1;
-// 				}
-// 				else
-// 				{
-// 					func[j + 32 * i] = 1;
-// 				}
-// 			}
-// 		}
-// 	}
-// 	for (auto s : func)
-//     {
-//         cout << s << " ";
-//     }
-//     cout << endl;
-
-// 	uint32_t l_2 = log2(n);
-// 	cout << l_2 << endl;
-// 	for (uint32_t k = 0; k < l_2; k++)
-// 	{
-// 		for (uint32_t l = 0; l < (1 << (l_2 - 1 - k)); l++)
-// 		{
-// 			for (uint32_t i = l * (1 << (k + 1)), j = i + (1 << k), p = 0; p < (1 << k); p++, i++, j++)
-// 			{
-// 				func[i] = func[i] + func[j];
-// 				func[j] = func[i] - func[j] - func[j];
-// 			}
-// 		}
-// 	}
-
-// 	return func;
-// }
 
 vector<int32_t> BF:: Walsh_Hadamard()
 {
@@ -572,30 +515,30 @@ uint32_t BF:: cor()
 string BF:: nf_nap()
 {
 	std::vector<int32_t>func = this->Walsh_Hadamard();
-	for (auto s : func)
-    {
-        cout << s << " ";
-    }
-    cout << endl;
+	// for (auto s : func)
+    // {
+    //     cout << s << " ";
+    // }
+    // cout << endl;
 	auto minmax = minmax_element(func.begin(), func.end());
 	uint32_t maximum = max(abs(*minmax.first), *minmax.second);
 	uint32_t nf = (n >> 1) - ((maximum) >> 1);
 	string res = "N_f = " + to_string(nf) + "\n";
 	uint32_t per = log2(n);
+	// cout << per << endl;
 	res += "NAP:\n";
+	uint32_t tmp = 0;
 	for (size_t i = 0; i < func.size(); i++)
 	{
 		if (abs(func[i]) == maximum)
 		{
-			bitset<32> st2(i);
-			string str2 = st2.to_string();
-			str2.erase(0, 32 - per);
-			for (size_t j = 0; j < str2.length(); j++)
+			// tmp = i;
+			for (size_t j = 0; j < per; j++)
 			{
-				if (str2[j] == '1')
+				if (bit_value(i, j))
 				{
 					res += "X";
-					res += to_string((j + 1));
+					res += to_string((per - j));
 					res += "+";
 				}
 			}
@@ -612,4 +555,96 @@ string BF:: nf_nap()
 	}
 
 	return res;
+}
+
+vector<int32_t> BF:: auto_cor()
+{
+	vector<int32_t> func = this->Walsh_Hadamard();
+	vector<int>::iterator iter;
+
+	for(iter = func.begin(); iter !=func.end(); iter++)
+    {
+		*iter *= *iter;
+    }
+
+    uint32_t k = 0;
+    uint32_t s = 0;
+	uint32_t per = log2(n);
+	for (uint32_t i = 0; i < per; i++)
+	{
+		for (uint32_t j = 0; j < (1 << (per - 1 - i)); j++)
+		{
+            k = j << (i + 1);
+            s = k + (1 << i);
+			for (size_t p = 0; p < (1 << i); p++)
+			{
+				func[k] = func[k] + func[s];
+				func[s] = func[k] - func[s] - func[s];
+                k++;
+                s++;
+			}
+		}
+	}
+
+	for(iter = func.begin(); iter !=func.end(); iter++)
+    {
+		*iter = *iter >> per;
+        // std::cout << *iter << " ";
+    }
+
+	return func;
+}
+
+uint32_t BF:: PC()
+{
+	uint32_t res = 0;
+    vector<int32_t>func = this->auto_cor();
+	// for (auto s : func)
+    // {
+    //     cout << s << " ";
+    // }
+    // cout << endl;
+	uint32_t per = log2(func.size());
+    uint32_t a = 0, b = 0, copy_a = 0, c = 0;
+    for (size_t k = 1; k <= per; k++)
+    {
+		a = ((1 << k) - 1) << (per - k);
+		copy_a = a;
+		while (true)
+		{
+			if (func[a] != 0)
+			{
+				return res;
+			}
+
+			b = (a + 1) & a;
+			c = (b - 1) ^ a;
+			c = weight_num(c) - 2;
+			a = (((((a + 1) ^ a) << 1) + 1) << c) ^ b;	
+
+			if (a > copy_a)
+			{
+				break;
+			}
+			copy_a = a;
+		}
+        res++;
+    }
+
+	return res;
+}
+
+uint32_t BF:: Cn_f()
+{
+	std::vector<int32_t>func = this->auto_cor();
+	// for (auto s : func)
+    // {
+    //     cout << s << " ";
+    // }
+    // cout << endl;
+	auto minmax = minmax_element(func.begin() + 1, func.end());
+	uint32_t maximum = max(abs(*minmax.first), *minmax.second);
+	uint32_t cnf = (n >> 2) - ((maximum) >> 2);
+
+	return cnf;
 }
