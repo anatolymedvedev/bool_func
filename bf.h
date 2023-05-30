@@ -39,5 +39,8 @@ public:
     uint32_t degree_func();
     vector<int32_t> Walsh_Hadamard();
     uint32_t cor();
-    string nf_nap();	
+    string nf_nap();
+    vector<int32_t> auto_cor();
+    uint32_t PC();
+    uint32_t Cn_f();
 };
